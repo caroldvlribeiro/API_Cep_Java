@@ -18,9 +18,9 @@
 
 ## 📖 Sobre
 
-Sistema console interativo que consome a **API ViaCEP** para buscar informações completas de endereços. Desenvolvido com **padrão MVC**, desserialização JSON via **GSON** e histórico de buscas persistido em **ArrayList**.
+Sistema console interativo que consome a **API ViaCEP** para buscar informações de endereços por CEP. Desenvolvido com **padrão MVC**, desserialização JSON via **GSON** e histórico de buscas persistido em **ArrayList**.
 
-Projeto acadêmico para a disciplina de **Técnica de Programação** no curso **Desenvolvimento de Software Multiplataforma (DSM)** da **FATEC Praia Grande**.
+Projeto acadêmico para a disciplina de **Técnica de Programação II** no curso **Desenvolvimento de Software Multiplataforma (DSM)** da **FATEC Praia Grande**.
 
 ---
 
@@ -30,30 +30,42 @@ Projeto acadêmico para a disciplina de **Técnica de Programação** no curso *
 API_Cep_Java/
 │
 ├── 📄 README.md
+├── 📄 API_Cep_Java.iml
 ├── 📄 .gitignore
 │
-├── 📁 src/
-│   ├── 📁 model/
-│   │   └── 🔹 Endereco.java              # Modelo da resposta da API
-│   │
-│   ├── 📁 view/
-│   │   ├── 🔹 MenuView.java              # Interface de menu principal
-│   │   └── 🔹 ResultadoView.java         # Exibição de resultados
-│   │
-│   ├── 📁 controller/
-│   │   └── 🔹 BuscaCepController.java    # Lógica de requisição à API
-│   │
-│   ├── 📁 service/
-│   │   └── 🔹 ViaCepService.java         # Integração com ViaCEP
-│   │
-│   ├── 📁 util/
-│   │   └── 🔹 GsonUtil.java              # Configuração GSON
-│   │
-│   └── 🔹 Main.java                      # Ponto de entrada
-│
-└── 📁 lib/
-    └── 📦 gson-2.10.1.jar                # Dependência GSON
+└── 📁 src/
+    └── 📁 br/edu/fatecpg/tecprog2/api_cep/
+        │
+        ├── 📁 model/
+        │   └── 🔹 Endereco.java              # Classe modelo com atributos e getters/setters
+        │
+        ├── 📁 service/
+        │   └── 🔹 ConsomeApi.java            # Serviço que faz requisição HTTP para ViaCEP
+        │
+        └── 📁 view/
+            └── 🔹 Main.java                  # Ponto de entrada com menu e histórico
 ```
+
+### 📋 Descrição dos Componentes
+
+#### **model/**
+- **Endereco.java** - Classe modelo que mapeia os dados retornados pela API
+  - Atributos: `cep`, `logradouro`, `bairro`, `localidade`, `estado`
+  - Getters e setters para cada atributo
+  - Método `toString()` para exibição formatada
+
+#### **service/**
+- **ConsomeApi.java** - Classe responsável pela comunicação com a API ViaCEP
+  - Método `buscaEndereco(String cep)` que faz requisição HTTP
+  - Usa `HttpClient` e `HttpRequest` da Java 11+
+  - Retorna a resposta JSON em formato `String`
+
+#### **view/**
+- **Main.java** - Classe principal com interface de console
+  - Menu interativo com 4 opções
+  - Integração com `Gson` para desserialização
+  - Histórico de buscas usando `ArrayList<Endereco>`
+  - Scanner para entrada de dados do usuário
 
 ---
 
@@ -61,8 +73,8 @@ API_Cep_Java/
 
 ### 1️⃣ Pré-requisitos
 
-- **Java 8+** instalado
-- **GSON** library (inclusa ou para download)
+- **Java 11+** instalado (para HttpClient nativo)
+- **GSON** library (Google JSON)
 
 ### 2️⃣ Download da Biblioteca GSON
 
@@ -70,7 +82,7 @@ API_Cep_Java/
 
 Acesse: [Google Gson Releases](https://github.com/google/gson/releases)
 
-Baixe a versão mais recente (ex: `gson-2.10.1.jar`) e coloque na pasta `/lib` do projeto.
+Baixe a versão mais recente (ex: `gson-2.10.1.jar`)
 
 **Opção B: Maven**
 
@@ -92,58 +104,71 @@ dependencies {
 
 ### 3️⃣ Compilação e Execução
 
-**No terminal:**
+**Linha de comando (Windows, Linux, Mac):**
 
 ```bash
 # Navegar para o diretório do projeto
 cd API_Cep_Java
 
 # Compilar com GSON no classpath
-javac -cp lib/gson-2.10.1.jar:src -d bin src/**/*.java
+javac -cp gson-2.10.1.jar -d bin src/br/edu/fatecpg/tecprog2/api_cep/**/*.java
 
 # Executar
-java -cp lib/gson-2.10.1.jar:bin Main
+java -cp gson-2.10.1.jar:bin br.edu.fatecpg.tecprog2.api_cep.view.Main
 ```
 
 **No IDE (Eclipse/IntelliJ):**
 
 1. Importar projeto como Java Project
-2. Adicionar `gson-2.10.1.jar` ao Build Path
+2. Adicionar `gson-2.10.1.jar` ao Build Path / Project Structure
 3. Executar `Main.java`
 
 ---
 
 ## 📋 Exemplos de Uso
 
-### Buscar CEP
-
-```
-╔════════════════════════════════╗
-║   BUSCADOR DE CEP - ViaCEP    ║
-╚════════════════════════════════╝
-
-Digite um CEP (sem hífen):
-> 01310100
-
-✅ Resultado encontrado:
-
-Logradouro: Avenida Paulista
-Bairro:     Bela Vista
-Cidade:     São Paulo
-UF:         SP
-CEP:        01310-100
-
-```
-
 ### Menu Principal
 
 ```
-[1] Buscar CEP
-[2] Ver Histórico
-[3] Limpar Histórico
-[4] Sair
+*API DE CONSULTA DE CEP* 
+1 - Consultar CEP 
+2 - Ver Consultados 
+3 - Limpar Histórico 
+4 - Sair 
+Digite sua opção:
+```
 
-Escolha uma opção:
+### Consultando um CEP
+
+```
+Digite sua opção: 1
+Digite seu CEP: 01310100
+
+CEP: 01310-100
+Logradouro: Avenida Paulista
+Bairro: Bela Vista
+Localidade: São Paulo
+Estado: SP
+
+Endereco{cep='01310-100', logradouro='Avenida Paulista', bairro='Bela Vista', 
+localidade='São Paulo', estado='SP'}
+```
+
+### Ver Histórico
+
+```
+Digite sua opção: 2
+
+HISTÓRICO
+Endereco{cep='01310-100', logradouro='Avenida Paulista', bairro='Bela Vista', localidade='São Paulo', estado='SP'}
+Endereco{cep='02154-000', logradouro='Avenida Brasil', bairro='Pari', localidade='São Paulo', estado='SP'}
+```
+
+### Limpar Histórico
+
+```
+Digite sua opção: 3
+Histórico limpo!
 ```
 
 ---
@@ -152,11 +177,12 @@ Escolha uma opção:
 
 | Tecnologia | Descrição |
 |------------|-----------|
-| **Java** | Linguagem de programação |
-| **GSON** | Desserialização JSON |
+| **Java 11+** | Linguagem de programação |
+| **GSON 2.10.1** | Desserialização JSON |
+| **HttpClient** | Cliente HTTP nativo do Java |
 | **ViaCEP API** | Dados de CEP (REST) |
 | **MVC** | Padrão arquitetural |
-| **ArrayList** | Histórico de buscas |
+| **ArrayList** | Histórico de buscas em memória |
 
 ---
 
@@ -165,13 +191,12 @@ Escolha uma opção:
 ### Obrigatória
 
 - **GSON 2.10.1+**
-    - 📥 Download: [github.com/google/gson](https://github.com/google/gson/releases)
-    - 📚 Documentação: [gson.readthedocs.io](https://gson.readthedocs.io/)
-    - 🔗 Repositório: [github.com/google/gson](https://github.com/google/gson)
+  - 📥 Download: [github.com/google/gson](https://github.com/google/gson/releases)
+  - 📚 Documentação: [gson.readthedocs.io](https://gson.readthedocs.io/)
 
 ### Java Runtime
 
-- Java JDK 8 ou superior
+- Java JDK 11 ou superior
 
 ---
 
@@ -179,9 +204,9 @@ Escolha uma opção:
 
 ### ViaCEP
 
-- **Base URL:** `https://viacep.com.br/ws/`
+- **Base URL:** `http://viacep.com.br/ws/`
 - **Endpoint:** `{CEP}/json/`
-- **Exemplo:** `https://viacep.com.br/ws/01310100/json/`
+- **Exemplo:** `http://viacep.com.br/ws/01310100/json/`
 - **Documentação:** [viacep.com.br](https://viacep.com.br/)
 
 **Resposta JSON:**
@@ -203,35 +228,37 @@ Escolha uma opção:
 
 ---
 
-## 🔧 Configuração Avançada
-
-### Adicionar GSON ao classpath permanentemente (Linux/Mac)
-
-```bash
-export CLASSPATH=$CLASSPATH:/caminho/para/gson-2.10.1.jar
-```
-
-### Windows
-
-Adicionar ao `CLASSPATH` nas variáveis de ambiente:
+## 🔧 Fluxo da Aplicação
 
 ```
-C:\caminho\para\gson-2.10.1.jar
-```
-
----
-
-## 📝 Padrão MVC
-
-```
-MODEL          CONTROLLER          VIEW
-─────────      ──────────          ────
-Endereco.java  BuscaCepController  MenuView.java
-              ↓                     ↓
-              Consome API ────────→ Exibe Resultado
-              ↑                     ↑
-              └─────────────────────┘
-                 ViaCepService
+┌─────────────┐
+│   Main      │  (view) - Menu e interação com usuário
+│  (Console)  │
+└──────┬──────┘
+       │ 1. Usuário digita CEP
+       ▼
+┌──────────────────┐
+│  ConsomeApi      │  (service) - Busca dados na API
+│  .buscaEndereco()│
+└──────┬───────────┘
+       │ 2. Retorna JSON
+       ▼
+┌──────────────────┐
+│   Gson           │  Desserializa JSON
+│  .fromJson()     │
+└──────┬───────────┘
+       │ 3. Retorna objeto Endereco
+       ▼
+┌──────────────────┐
+│   Endereco       │  (model) - Objeto com dados
+│   (Objeto)       │
+└──────┬───────────┘
+       │ 4. Adiciona ao ArrayList historico
+       ▼
+┌──────────────────┐
+│  Exibe resultado │  (view) - Mostra dados formatados
+│  no console      │
+└──────────────────┘
 ```
 
 ---
@@ -242,8 +269,9 @@ Endereco.java  BuscaCepController  MenuView.java
 ✅ Histórico de buscas em ArrayList  
 ✅ Desserialização automática com GSON  
 ✅ Interface amigável no console  
-✅ Tratamento de erros  
-✅ Formatação de respostas
+✅ Tratamento básico de erros  
+✅ Formatação de respostas  
+✅ Menu interativo com 4 opções
 
 ---
 
@@ -251,7 +279,7 @@ Endereco.java  BuscaCepController  MenuView.java
 
 | Requisito | Mínimo | Recomendado |
 |-----------|--------|-------------|
-| Java | 8 | 11+ |
+| Java | 11 | 17+ |
 | RAM | 128 MB | 512 MB+ |
 | Disco | 50 MB | 100 MB+ |
 | Conexão | Internet | Internet |
@@ -264,12 +292,19 @@ Endereco.java  BuscaCepController  MenuView.java
 
 **Solução:** Verifique se o GSON está no classpath
 ```bash
-javac -cp gson-2.10.1.jar -d bin src/**/*.java
+javac -cp gson-2.10.1.jar -d bin src/br/edu/fatecpg/tecprog2/api_cep/**/*.java
+```
+
+### ❌ "Main not found"
+
+**Solução:** Certifique-se de usar o pacote completo
+```bash
+java -cp gson-2.10.1.jar:bin br.edu.fatecpg.tecprog2.api_cep.view.Main
 ```
 
 ### ❌ "CEP não encontrado"
 
-**Solução:** Verifique se o CEP é válido (formato: 8 dígitos)
+**Solução:** Verifique se o CEP é válido (8 dígitos numéricos)
 
 ### ❌ "Erro de conexão"
 
@@ -281,7 +316,7 @@ javac -cp gson-2.10.1.jar -d bin src/**/*.java
 
 - [Google Gson GitHub](https://github.com/google/gson)
 - [ViaCEP Documentação](https://viacep.com.br/)
-- [Java Documentation](https://docs.oracle.com/en/java/)
+- [Java 11+ HttpClient](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html)
 - [RESTful API Best Practices](https://restfulapi.net/)
 
 ---
@@ -291,7 +326,7 @@ javac -cp gson-2.10.1.jar -d bin src/**/*.java
 **Carolina Ribeiro**
 
 - 🔗 GitHub: [@caroldvlribeiro](https://github.com/caroldvlribeiro)
-- 💼 FATEC Praia Grande
+- 💼 FATEC Praia Grande - DSM
 
 ---
 
@@ -306,5 +341,7 @@ Este projeto é de código aberto e pode ser utilizado livremente para fins educ
 **Desenvolvido com ☕ Java e ❤️ para FATEC Praia Grande**
 
 *DSM - Desenvolvimento de Software Multiplataforma*
+
+*Técnica de Programação II*
 
 </div>
